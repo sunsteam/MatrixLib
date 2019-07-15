@@ -9,5 +9,7 @@ public abstract class BaseMatrixHelper {
 
     static final String TAG = "MatrixHelper";
 
-    public abstract void init(Application context, String splashName);
+    public abstract void init(Application context, MatrixAllConfig matrixAllConfig);
+
+    public abstract void init(Application context, MatrixAllConfig matrixAllConfig, MatrixCustomConfig customConfig);
 }

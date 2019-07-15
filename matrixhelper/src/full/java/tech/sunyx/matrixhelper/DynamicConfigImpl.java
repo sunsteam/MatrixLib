@@ -9,21 +9,6 @@ import com.tencent.mrs.plugin.IDynamicConfig;
 public class DynamicConfigImpl implements IDynamicConfig {
     private static final String TAG = "Matrix.DynamicConfigImpl";
 
-    public DynamicConfigImpl() {
-
-    }
-
-    public boolean isFpsEnable() {
-        return true;
-    }
-
-    public boolean isTraceEnable() {
-        return true;
-    }
-
-    public boolean isMatrixEnable() {
-        return true;
-    }
 
     @Override
     public String get(String key, String defStr) {
