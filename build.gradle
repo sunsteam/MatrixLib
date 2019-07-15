@@ -14,18 +14,18 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.2'
-        classpath 'com.google.code.gson:gson:2.8.5'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath ("com.tencent.matrix:matrix-gradle-plugin:${MATRIX_VERSION}") { changing = true }
     }
 }
 
-allprojects {
+subprojects {
     repositories {
         google()
         jcenter()
-
+        flatDir { dirs 'libs' }
     }
+
 }
 
 task clean(type: Delete) {

@@ -23,11 +23,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
-import com.tencent.matrix.Matrix;
-import com.tencent.matrix.plugin.Plugin;
-import com.tencent.matrix.resource.ResourcePlugin;
-import com.tencent.matrix.util.MatrixLog;
 import com.tencent.matrix.util.MatrixUtil;
 
 import java.util.ArrayList;
@@ -57,16 +54,11 @@ public class TestLeakActivity extends Activity {
         editor.commit();
 
         testLeaks.add(this);
-        Plugin plugin = Matrix.with().getPluginByClass(ResourcePlugin.class);
-        if (!plugin.isPluginStarted()) {
-            MatrixLog.i(TAG, "plugin-resource start");
-            plugin.start();
-        }
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 2;
         bitmaps.add(BitmapFactory.decodeResource(getResources(), R.drawable.welcome_bg, options));
-        MatrixLog.i(TAG, "test leak activity size: %d, bitmaps size: %d", testLeaks.size(), bitmaps.size());
+        Log.i(TAG, "test leak activity size: %d, bitmaps size: %d", testLeaks.size(), bitmaps.size());
 
         setContentView(R.layout.test_leak);
 
@@ -86,7 +78,7 @@ public class TestLeakActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MatrixLog.i(TAG, "test leak activity destroy:" + this.hashCode());
+        Log.i(TAG, "test leak activity destroy:" + this.hashCode());
 
         new Thread(new Runnable() {
             @Override

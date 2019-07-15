@@ -27,10 +27,6 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Toast;
 
-import com.tencent.matrix.Matrix;
-import com.tencent.matrix.iocanary.IOCanaryPlugin;
-import com.tencent.matrix.plugin.Plugin;
-import com.tencent.matrix.util.MatrixLog;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,12 +53,6 @@ public class TestIOActivity extends Activity {
         setContentView(R.layout.test_io);
         IssueFilter.setCurrentFilter(IssueFilter.ISSUE_IO);
         requestPer();
-
-        Plugin plugin = Matrix.with().getPluginByClass(IOCanaryPlugin.class);
-        if (!plugin.isPluginStarted()) {
-            MatrixLog.i(TAG, "plugin-io start");
-            plugin.start();
-        }
 
     }
 

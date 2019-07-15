@@ -1,11 +1,55 @@
-
-//import com.google.gson.JsonArray
-//import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.Gson
 
 apply plugin: 'com.tencent.matrix-plugin'
 
+buildscript {
+    repositories { jcenter() }
+    dependencies { classpath 'com.google.code.gson:gson:2.8.5'}
+}
+
+configurations {
+    apkCheckerDependency
+}
 
 ext.unusedResourcesSet = new HashSet<String>()
+
+project.afterEvaluate {
+
+    android.applicationVariants.all { variant ->
+
+        if (variant.name.equalsIgnoreCase("debug")) {
+            packageDebug.doLast {
+                ProcessBuilder processBuilder = new ProcessBuilder();
+                println configurations.apkCheckerDependency.getAt(0).getAbsolutePath()
+                processBuilder.command("java",
+                        "-jar", configurations.apkCheckerDependency.getAt(0).getAbsolutePath(),
+                        "--apk", variant.outputs.first().outputFile.getAbsolutePath(),
+                        "--output", project.getProjectDir().getAbsolutePath() + "/unused_resources",
+                        "--format", "json",
+                        "-unusedResources", "--rTxt", project.getBuildDir().getAbsolutePath() + "/intermediates/symbols/${variant.name}/R.txt");
+                Process process = processBuilder.start();
+                process.waitFor();
+                File outputFile = new File(project.getProjectDir().getAbsolutePath() + "/unused_resources.json");
+                if (outputFile.exists()) {
+                    Gson gson = new Gson();
+                    JsonArray jsonArray = gson.fromJson(outputFile.text, JsonArray.class);
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        if (jsonArray.get(i).asJsonObject.get("taskType").asInt == 12) {
+                            JsonArray resList = jsonArray.get(i).asJsonObject.get("unused-resources").asJsonArray;
+                            for (int j = 0; j < resList.size(); j++) {
+                                project.ext.unusedResourcesSet.add(resList.get(j).asString);
+                            }
+                            println "find unused resources:\n" + unusedResourcesSet
+                            break;
+                        }
+                    }
+                    outputFile.delete();
+                }
+            }
+        }
+    }
+}
 
 matrix {
     trace {
@@ -23,48 +67,6 @@ matrix {
         ignoreResources = ["R.id.*", "R.bool.*"]
     }
 }
-
-configurations {
-    apkCheckerDependency
-}
-
-
-//android {
-//
-//    applicationVariants.all { variant ->
-//
-//        if (variant.name.equalsIgnoreCase("debug")) {
-//            packageDebug.doLast {
-//                ProcessBuilder processBuilder = new ProcessBuilder();
-//                println configurations.apkCheckerDependency.getAt(0).getAbsolutePath()
-//                processBuilder.command("java",
-//                        "-jar", configurations.apkCheckerDependency.getAt(0).getAbsolutePath(),
-//                        "--apk", variant.outputs.first().outputFile.getAbsolutePath(),
-//                        "--output", project.getProjectDir().getAbsolutePath() + "/unused_resources",
-//                        "--format", "json",
-//                        "-unusedResources", "--rTxt", project.getBuildDir().getAbsolutePath() + "/intermediates/symbols/${variant.name}/R.txt");
-//                Process process = processBuilder.start();
-//                process.waitFor();
-//                File outputFile = new File(project.getProjectDir().getAbsolutePath() + "/unused_resources.json");
-//                if (outputFile.exists()) {
-//                    Gson gson = new Gson();
-//                    JsonArray jsonArray = gson.fromJson(outputFile.text, JsonArray.class);
-//                    for (int i = 0; i < jsonArray.size(); i++) {
-//                        if (jsonArray.get(i).asJsonObject.get("taskType").asInt == 12) {
-//                            JsonArray resList = jsonArray.get(i).asJsonObject.get("unused-resources").asJsonArray;
-//                            for (int j = 0; j < resList.size(); j++) {
-//                                project.ext.unusedResourcesSet.add(resList.get(j).asString);
-//                            }
-//                            println "find unused resources:\n" + unusedResourcesSet
-//                            break;
-//                        }
-//                    }
-//                    outputFile.delete();
-//                }
-//            }
-//        }
-//    }
-//}
 
 dependencies {
     apkCheckerDependency group: "com.tencent.matrix", name: "matrix-apk-canary", version:MATRIX_VERSION, changing: true
