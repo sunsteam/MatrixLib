@@ -31,7 +31,7 @@ public class MatrixHelper {
 
     static final String TAG = "MatrixHelper";
 
-    static final HashMap<String, Plugin> pluginMap = new HashMap<>();
+    static HashMap<String, Plugin> pluginMap = new HashMap<>();
 
     public static void init(Application context, InitConfig allConfig) {
 
@@ -128,7 +128,7 @@ public class MatrixHelper {
         return pluginMap.get(PluginInfo.Trace.TAG_PLUGIN);
     }
 
-    public static Plugin getIOPlugin() {
+    public static Plugin getIoPlugin() {
         return pluginMap.get(PluginInfo.IO.TAG_PLUGIN);
     }
 

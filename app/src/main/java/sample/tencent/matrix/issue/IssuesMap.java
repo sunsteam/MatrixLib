@@ -16,11 +16,12 @@
 
 package sample.tencent.matrix.issue;
 
-import com.tencent.matrix.report.Issue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import tech.sunyx.matrixhelper.Issue;
 
 public class IssuesMap {
 

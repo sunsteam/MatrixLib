@@ -24,34 +24,22 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.os.SystemClock;
 import android.provider.Settings;
-
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
-import android.webkit.PermissionRequest;
 import android.widget.Toast;
 
-import com.tencent.matrix.AppForegroundDelegate;
-import com.tencent.matrix.Matrix;
-import com.tencent.matrix.listeners.IAppForeground;
-import com.tencent.matrix.plugin.Plugin;
-import com.tencent.matrix.trace.TracePlugin;
-import com.tencent.matrix.trace.core.AppMethodBeat;
-import com.tencent.matrix.trace.view.FrameDecorator;
-import com.tencent.matrix.util.MatrixLog;
-
-import java.security.Permission;
 
 import sample.tencent.matrix.R;
 import sample.tencent.matrix.issue.IssueFilter;
-
-import static android.Manifest.permission.SYSTEM_ALERT_WINDOW;
+import tech.sunyx.matrixhelper.MatrixHelper;
+import tech.sunyx.matrixhelper.Plugin;
 
 public class TestTraceMainActivity extends Activity implements IAppForeground {
+    private static final int PERMISSION_REQUEST_CODE = 0x02;
     private static String TAG = "Matrix.TestTraceMainActivity";
     FrameDecorator decorator;
-    private static final int PERMISSION_REQUEST_CODE = 0x02;
-
+    private boolean isStop = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,9 +47,9 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
         setContentView(R.layout.test_trace);
         IssueFilter.setCurrentFilter(IssueFilter.ISSUE_TRACE);
 
-        Plugin plugin = Matrix.with().getPluginByClass(TracePlugin.class);
+        Plugin plugin = MatrixHelper.getTracePlugin()
         if (!plugin.isPluginStarted()) {
-            MatrixLog.i(TAG, "plugin-trace start");
+            Log.i(TAG, "plugin-trace start");
             plugin.start();
         }
         decorator = FrameDecorator.create(this);
@@ -74,11 +62,10 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
         AppForegroundDelegate.INSTANCE.addListener(this);
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        MatrixLog.i(TAG, "requestCode:%s resultCode:%s", requestCode, resultCode);
+        Log.i(TAG, "requestCode:"+requestCode+" resultCode:"+resultCode);
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (canDrawOverlays()) {
                 decorator.show();
@@ -88,13 +75,12 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
         }
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Plugin plugin = Matrix.with().getPluginByClass(TracePlugin.class);
+        Plugin plugin = MatrixHelper.getTracePlugin();
         if (plugin.isPluginStarted()) {
-            MatrixLog.i(TAG, "plugin-trace stop");
+            Log.i(TAG, "plugin-trace stop");
             plugin.stop();
         }
         if (canDrawOverlays()) {
@@ -118,7 +104,6 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
         startActivityForResult(intent, PERMISSION_REQUEST_CODE);
     }
 
-
     public void testEnter(View view) {
         Intent intent = new Intent(this, TestEnterActivity.class);
         startActivity(intent);
@@ -133,7 +118,6 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
     public void testJankiess(View view) {
         A();
     }
-
 
     public void testANR(final View view) {
         for (long i = 0; i < 1l; i++) {
@@ -190,10 +174,8 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
         SystemClock.sleep(2);
     }
 
-    private boolean isStop = false;
-
     public void stopAppMethodBeat(View view) {
-        AppMethodBeat appMethodBeat = Matrix.with().getPluginByClass(TracePlugin.class).getAppMethodBeat();
+        AppMethodBeat appMethodBeat = MatrixHelper.getTracePlugin().getAppMethodBeat();
         if (isStop) {
             Toast.makeText(this, "start AppMethodBeat", Toast.LENGTH_LONG).show();
             appMethodBeat.onStart();
@@ -202,43 +184,6 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
             appMethodBeat.onStop();
         }
         isStop = !isStop;
-    }
-
-    public void testInnerSleep() {
-        SystemClock.sleep(6000);
-    }
-
-    private void A() {
-        B();
-        H();
-        I();
-        J();
-        SystemClock.sleep(800);
-    }
-
-    private void B() {
-        C();
-        G();
-        SystemClock.sleep(200);
-    }
-
-    private void C() {
-        D();
-        E();
-        F();
-        SystemClock.sleep(100);
-    }
-
-    private void D() {
-        SystemClock.sleep(20);
-    }
-
-    private void E() {
-        SystemClock.sleep(20);
-    }
-
-    private void F() {
-        SystemClock.sleep(20);
     }
 
     @Override

@@ -17,15 +17,11 @@
 package sample.tencent.matrix.resource;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
-import com.tencent.matrix.util.MatrixUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,6 +30,8 @@ import java.util.Set;
 import sample.tencent.matrix.R;
 import sample.tencent.matrix.issue.IssueFilter;
 import tech.sunyx.matrixhelper.MatrixHelper;
+import tech.sunyx.matrixhelper.Plugin;
+import tech.sunyx.matrixhelper.params.PluginInfo;
 
 /**
  * Created by zhangshaowen on 17/6/13.
@@ -52,8 +50,9 @@ public class TestLeakActivity extends Activity {
 
         MatrixHelper.clearCacheFile(this, PluginInfo.Resource.TAG_PLUGIN);
 
+        Plugin plugin = MatrixHelper.getResourcePlugin();
         if (!plugin.isPluginStarted()) {
-            MatrixLog.i(TAG, "plugin-resource start");
+            Log.i(TAG, "plugin-resource start");
             plugin.start();
         }
 

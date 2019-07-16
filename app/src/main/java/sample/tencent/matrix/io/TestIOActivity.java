@@ -24,9 +24,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +36,8 @@ import java.io.IOException;
 
 import sample.tencent.matrix.R;
 import sample.tencent.matrix.issue.IssueFilter;
+import tech.sunyx.matrixhelper.MatrixHelper;
+import tech.sunyx.matrixhelper.Plugin;
 
 
 /**
@@ -54,9 +56,9 @@ public class TestIOActivity extends Activity {
         IssueFilter.setCurrentFilter(IssueFilter.ISSUE_IO);
         requestPer();
 
-        Plugin plugin = Matrix.with().getPluginByClass(IOCanaryPlugin.class);
+        Plugin plugin = MatrixHelper.getIoPlugin();
         if (!plugin.isPluginStarted()) {
-            MatrixLog.i(TAG, "plugin-io start");
+            Log.i(TAG, "plugin-io start");
             plugin.start();
         }
     }
@@ -81,10 +83,10 @@ public class TestIOActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case EXTERNAL_STORAGE_REQ_CODE:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 }
                 break;
+            default:
         }
     }
 
@@ -166,7 +168,7 @@ public class TestIOActivity extends Activity {
             FileInputStream fis = new FileInputStream(f);
             int count = 0;
             while (fis.read(buf) != -1) {
-//                MatrixLog.i(TAG, "read %d", ++count);
+                //                MatrixLog.i(TAG, "read %d", ++count);
             }
             fis.close();
         } catch (FileNotFoundException e) {
@@ -185,7 +187,7 @@ public class TestIOActivity extends Activity {
             FileInputStream fis = new FileInputStream(f);
             int count = 0;
             while (fis.read(buf) != -1) {
-//                MatrixLog.i(TAG, "read %d", ++count);
+                //                MatrixLog.i(TAG, "read %d", ++count);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

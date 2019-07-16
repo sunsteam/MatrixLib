@@ -16,11 +16,12 @@
 
 package sample.tencent.matrix.issue;
 
-import com.tencent.matrix.report.Issue;
 
 import org.json.JSONObject;
 
 import java.util.Iterator;
+
+import tech.sunyx.matrixhelper.Issue;
 
 public class ParseIssueUtil {
 

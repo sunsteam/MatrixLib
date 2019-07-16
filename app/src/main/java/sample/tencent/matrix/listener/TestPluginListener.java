@@ -21,35 +21,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.tencent.matrix.plugin.DefaultPluginListener;
-import com.tencent.matrix.report.Issue;
-import com.tencent.matrix.util.MatrixLog;
 
 import java.lang.ref.SoftReference;
 
 import sample.tencent.matrix.issue.IssueFilter;
 import sample.tencent.matrix.issue.IssuesListActivity;
 import sample.tencent.matrix.issue.IssuesMap;
-import tech.sunyx.matrixhelper.DelegatePluginListener;
+import tech.sunyx.matrixhelper.Issue;
+import tech.sunyx.matrixhelper.MatrixListener;
 
 /**
  * Created by zhangshaowen on 17/6/15.
  */
 
-public class TestPluginListener extends DelegatePluginListener {
+public class TestPluginListener extends MatrixListener {
 
     public static final String TAG = "TestPluginListener";
 
     public SoftReference<Context> softReference;
 
     public TestPluginListener(Context context) {
-        super(context);
         softReference = new SoftReference<>(context);
     }
 
     @Override
     public void onReportIssue(Issue issue) {
-        super.onReportIssue(issue);
         Log.e(TAG, issue.toString());
 
         IssuesMap.put(IssueFilter.getCurrentFilter(), issue);

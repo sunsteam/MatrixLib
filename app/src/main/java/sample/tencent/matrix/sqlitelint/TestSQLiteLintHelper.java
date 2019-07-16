@@ -18,9 +18,8 @@ package sample.tencent.matrix.sqlitelint;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.util.Log;
 
-import com.tencent.matrix.util.MatrixLog;
-import com.tencent.sqlitelint.SQLiteLintIssue;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -158,7 +157,7 @@ public class TestSQLiteLintHelper {
     }
 
     public static String getAssetAsString(Context context, String file) {
-        MatrixLog.i(TAG, "getAssetAsString : " + file);
+        Log.i(TAG, "getAssetAsString : " + file);
         AssetManager assets = context.getAssets();
         InputStream in = null;
         try {

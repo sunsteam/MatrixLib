@@ -21,19 +21,10 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.tencent.matrix.Matrix;
-import com.tencent.matrix.plugin.Plugin;
-import com.tencent.matrix.util.MatrixLog;
-import com.tencent.sqlitelint.SQLiteLint;
-import com.tencent.sqlitelint.SQLiteLintAndroidCoreManager;
-import com.tencent.sqlitelint.SQLiteLintIssue;
-import com.tencent.sqlitelint.SQLiteLintPlugin;
-import com.tencent.sqlitelint.behaviour.BaseBehaviour;
-import com.tencent.sqlitelint.behaviour.persistence.IssueStorage;
-import com.tencent.sqlitelint.config.SQLiteLintConfig;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,9 +36,11 @@ import java.util.Map;
 
 import sample.tencent.matrix.R;
 import sample.tencent.matrix.issue.IssueFilter;
+import tech.sunyx.matrixhelper.MatrixHelper;
+import tech.sunyx.matrixhelper.Plugin;
 
 public class TestSQLiteLintActivity extends AppCompatActivity {
-    private final static String TAG = "Matrix.TestSQLiteLintActivity";
+    private final static String TAG = "TestSQLiteLintActivity";
     private static int only1 = 0;
 
     @Override
@@ -63,7 +56,7 @@ public class TestSQLiteLintActivity extends AppCompatActivity {
         super.onDestroy();
         IssueStorage.clearData();
 
-        SQLiteLintPlugin plugin = (SQLiteLintPlugin) Matrix.with().getPluginByClass(SQLiteLintPlugin.class);
+        Plugin plugin = MatrixHelper.getSqlLiteLintPlugin();
         if (plugin == null) {
             return;
         }
@@ -162,7 +155,8 @@ public class TestSQLiteLintActivity extends AppCompatActivity {
                         continue;
                     }
                     foundIssueMap.put(issue.id, issue);
-                    MatrixLog.i(TAG, String.format("onPublish issue %s, sql: %s, type: %d, desc: %s", issue.id, issue.sql, issue.type, issue.desc));
+                    Log.i(TAG, String.format("onPublish issue %s, sql: %s, type: %d, desc: %s", issue.id, issue.sql,
+                            issue.type, issue.desc));
                     JSONObject jsonObject = new JSONObject();
                     try {
                         jsonObject.put("id", issue.id);
@@ -183,7 +177,7 @@ public class TestSQLiteLintActivity extends AppCompatActivity {
 
     private void startTest() {
 
-        MatrixLog.d(TAG, "start test, please wait");
+        Log.d(TAG, "start test, please wait");
         SQLiteLintAndroidCoreManager.INSTANCE.addBehavior(behaviour, TestDBHelper.get().getReadableDatabase().getPath());
         TestSQLiteLintHelper.initIssueList(this, issueMap);
         doTest();
@@ -200,7 +194,7 @@ public class TestSQLiteLintActivity extends AppCompatActivity {
         }
 
         Toast.makeText(this, "start create db, please wait", Toast.LENGTH_LONG).show();
-        SQLiteLintPlugin plugin = (SQLiteLintPlugin) Matrix.with().getPluginByClass(SQLiteLintPlugin.class);
+        Plugin plugin = MatrixHelper.getSqlLiteLintPlugin();
         if (plugin == null) {
             return;
         }

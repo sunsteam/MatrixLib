@@ -14,34 +14,42 @@
  * limitations under the License.
  */
 
-package sample.tencent.matrix;
+package tech.sunyx.matrixhelper;
 
-import android.app.Application;
-import android.content.Context;
 
-import sample.tencent.matrix.listener.TestPluginListener;
-import tech.sunyx.matrixhelper.MatrixHelper;
-import tech.sunyx.matrixhelper.params.InitConfig;
+import org.json.JSONObject;
+
 
 /**
- * Created by caichongyang on 17/5/18.
+ * 委托Issue中除了Plugin以外的属性
+ *
+ * @author by SunYuXing on 2019-07-16.
  */
 
-public class MatrixApplication extends Application {
-    private static final String TAG = "Matrix.Application";
+public class Issue {
 
-    private static Context sContext;
+    public static final String ISSUE_REPORT_TYPE = "type";
+    public static final String ISSUE_REPORT_TAG = "tag";
+    public static final String ISSUE_REPORT_PROCESS = "process";
+    public static final String ISSUE_REPORT_TIME = "time";
 
-    public static Context getContext() {
-        return sContext;
+    public JSONObject getContent() {
+        return new JSONObject();
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    public Integer getType() {
+        return 0;
+    }
 
-        MatrixHelper.init(this, InitConfig.builder()
-                .listener(new TestPluginListener(this))
-                .build());
+    public String getKey() {
+        return "";
+    }
+
+    public String getTag() {
+        return "";
+    }
+
+    public Plugin getPlugin() {
+        return MatrixHelper.pluginMap.get(Plugin.TAG);
     }
 }

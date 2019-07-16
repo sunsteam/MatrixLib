@@ -31,7 +31,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tencent.matrix.report.Issue;
 
 import org.json.JSONException;
 
@@ -46,6 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sample.tencent.matrix.R;
+import tech.sunyx.matrixhelper.Issue;
 
 public class IssuesListActivity extends AppCompatActivity {
 

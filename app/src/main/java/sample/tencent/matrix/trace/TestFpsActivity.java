@@ -23,6 +23,7 @@ import android.os.HandlerThread;
 import android.print.PrinterId;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -32,7 +33,6 @@ import com.tencent.matrix.Matrix;
 import com.tencent.matrix.plugin.Plugin;
 import com.tencent.matrix.trace.TracePlugin;
 import com.tencent.matrix.trace.listeners.IDoFrameListener;
-import com.tencent.matrix.util.MatrixLog;
 
 import java.util.Random;
 
@@ -60,7 +60,7 @@ public class TestFpsActivity extends Activity {
         public void doFrameAsync(String focusedActivityName, long frameCost, int droppedFrames) {
             super.doFrameAsync(focusedActivityName, frameCost, droppedFrames);
             count += droppedFrames;
-            MatrixLog.i(TAG, "[doFrameSync] scene:" + focusedActivityName + " droppedFrames:" + droppedFrames);
+            Log.i(TAG, "[doFrameSync] scene:" + focusedActivityName + " droppedFrames:" + droppedFrames);
         }
     };
 
@@ -104,7 +104,7 @@ public class TestFpsActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MatrixLog.i(TAG, "[onDestroy] count:" + count + " time:" + (System.currentTimeMillis() - time) + "");
+        Log.i(TAG, "[onDestroy] count:" + count + " time:" + (System.currentTimeMillis() - time) + "");
         Matrix.with().getPluginByClass(TracePlugin.class).getFrameTracer().removeListener(mDoFrameListener);
         Matrix.with().getPluginByClass(TracePlugin.class).getFrameTracer().onCloseTrace();
     }

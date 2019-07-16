@@ -8,13 +8,13 @@ package tech.sunyx.matrixhelper;
  */
 public abstract class MatrixListener {
 
-    void onInit(Plugin plugin){}
+    public void onInit(Plugin plugin){}
 
-    void onStart(Plugin plugin){}
+    public void onStart(Plugin plugin){}
 
-    void onStop(Plugin plugin){}
+    public void onStop(Plugin plugin){}
 
-    void onDestroy(Plugin plugin){}
+    public void onDestroy(Plugin plugin){}
 
-    abstract void onReportIssue(Issue issue);
+    public abstract void onReportIssue(Issue issue);
 }
