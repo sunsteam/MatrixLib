@@ -54,6 +54,11 @@ public class TestIOActivity extends Activity {
         IssueFilter.setCurrentFilter(IssueFilter.ISSUE_IO);
         requestPer();
 
+        Plugin plugin = Matrix.with().getPluginByClass(IOCanaryPlugin.class);
+        if (!plugin.isPluginStarted()) {
+            MatrixLog.i(TAG, "plugin-io start");
+            plugin.start();
+        }
     }
 
     private void requestPer() {

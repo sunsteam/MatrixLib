@@ -55,12 +55,6 @@ public class TestSQLiteLintActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.test_sqlite_lint);
 
-        Plugin plugin = Matrix.with().getPluginByClass(SQLiteLintPlugin.class);
-        if (!plugin.isPluginStarted()) {
-            MatrixLog.i(TAG, "plugin-sqlite-lint start");
-            plugin.start();
-        }
-
         IssueFilter.setCurrentFilter(IssueFilter.ISSUE_SQLITELINT);
     }
 

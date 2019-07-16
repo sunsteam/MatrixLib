@@ -3,8 +3,7 @@ package sample.tencent.matrix.trace;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
-import com.tencent.matrix.util.MatrixLog;
+import android.util.Log;
 
 import static sample.tencent.matrix.MatrixApplication.getContext;
 
@@ -13,7 +12,7 @@ public class StartUpBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        MatrixLog.i(TAG, "[onReceive]");
+        Log.i(TAG, "[onReceive]");
         getContext().startActivity(new Intent(getContext(), TestOtherProcessActivity.class));
     }
 }

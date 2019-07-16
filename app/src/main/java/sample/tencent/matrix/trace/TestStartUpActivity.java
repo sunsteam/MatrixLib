@@ -6,8 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-
-import com.tencent.matrix.util.MatrixLog;
+import android.util.Log;
 
 import static sample.tencent.matrix.MatrixApplication.getContext;
 
@@ -27,6 +26,6 @@ public class TestStartUpActivity extends Activity {
         Uri uri = Uri.parse("content://sample.tencent.matrix.trace.StartUpContentProvider/user");
         Bundle bundle = contentResolver.call(uri, "method", null, null);
         String returnCall = bundle.getString("returnCall");
-        MatrixLog.i(TAG, "[callByContentResolver] returnCall:%s", returnCall);
+        Log.i(TAG, "[callByContentResolver] returnCall: " + returnCall);
     }
 }

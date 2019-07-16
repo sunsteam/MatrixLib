@@ -1,6 +1,8 @@
 package tech.sunyx.matrixhelper;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.tencent.matrix.Matrix;
 import com.tencent.matrix.iocanary.IOCanaryPlugin;
@@ -10,82 +12,92 @@ import com.tencent.matrix.resource.config.ResourceConfig;
 import com.tencent.matrix.trace.TracePlugin;
 import com.tencent.matrix.trace.config.TraceConfig;
 import com.tencent.matrix.util.MatrixLog;
+import com.tencent.matrix.util.MatrixUtil;
 import com.tencent.sqlitelint.SQLiteLint;
 import com.tencent.sqlitelint.SQLiteLintPlugin;
 import com.tencent.sqlitelint.config.SQLiteLintConfig;
 
+import java.util.HashMap;
+
+import tech.sunyx.matrixhelper.params.InitConfig;
+import tech.sunyx.matrixhelper.params.MatrixConfig;
+import tech.sunyx.matrixhelper.params.PluginInfo;
+
+
 /**
  * @author by SunYuXing on 2019-07-14.
  */
-public class MatrixHelper extends BaseMatrixHelper {
+public class MatrixHelper {
 
-    @Override
-    public void init(Application context, MatrixAllConfig matrixAllConfig) {
-        init(context, matrixAllConfig, null);
-    }
+    static final String TAG = "MatrixHelper";
 
-    @Override
-    public void init(Application context, MatrixAllConfig matrixAllConfig, MatrixCustomConfig customConfig) {
+    static final HashMap<String, Plugin> pluginMap = new HashMap<>();
+
+    public static void init(Application context, InitConfig allConfig) {
 
         MatrixLog.i(TAG, "init start:%s", System.currentTimeMillis());
 
-        DynamicConfigImpl dynamicConfig = new DynamicConfigImpl();
+        MatrixConfig matrixConfig = allConfig.getMatrixConfig();
+        DelegateConfigImpl dynamicConfig = new DelegateConfigImpl(allConfig.getDynamicConfig());
 
         Matrix.Builder builder = new Matrix.Builder(context);
-        builder.patchListener(new DelegatePluginListener(context));
+        builder.patchListener(new DelegatePluginListener(context, allConfig.getListener()));
 
-        if (matrixAllConfig.matrixEnable) {
+
+        if (matrixConfig.isMatrixEnable()) {
 
             //trace
-            if (matrixAllConfig.traceEnable) {
-                TraceConfig traceConfig = new TraceConfig.Builder()
-                        .dynamicConfig(dynamicConfig)
-                        .enableFPS(matrixAllConfig.fpsEnable)
-                        .enableEvilMethodTrace(matrixAllConfig.evilMethodEnable)
-                        .enableAnrTrace(matrixAllConfig.anrTraceEnable)
-                        .enableStartup(matrixAllConfig.startupEnable)
-                        .splashActivities(matrixAllConfig.splashActivity)
-                        .isDebug(matrixAllConfig.debug)
-                        .isDevEnv(matrixAllConfig.devEnv)
-                        .build();
+            TraceConfig traceConfig = new TraceConfig.Builder()
+                    .dynamicConfig(dynamicConfig)
+                    .enableFPS(matrixConfig.isFpsEnable())
+                    .enableEvilMethodTrace(matrixConfig.isEvilMethodEnable())
+                    .enableAnrTrace(matrixConfig.isAnrTraceEnable())
+                    .enableStartup(matrixConfig.isStartupEnable())
+                    .splashActivities(matrixConfig.getSplashActivity())
+                    .isDebug(matrixConfig.isDebug())
+                    .isDevEnv(matrixConfig.isDevEnv())
+                    .build();
 
-                TracePlugin tracePlugin = (new TracePlugin(traceConfig));
-                builder.plugin(tracePlugin);
-            }
+            TracePlugin tracePlugin = (new TracePlugin(traceConfig));
+            builder.plugin(tracePlugin);
 
             //resource
-            if (matrixAllConfig.resourceEnable) {
-                builder.plugin(new ResourcePlugin(new ResourceConfig.Builder()
-                        .dynamicConfig(dynamicConfig)
-                        .setDumpHprof(matrixAllConfig.dumpHprof)
-                        //only set true when in sample, not in your app
-                        .setDetectDebuger(matrixAllConfig.detectDebug)
-                        .build()));
-                ResourcePlugin.activityLeakFixer(context);
-            }
+            builder.plugin(new ResourcePlugin(new ResourceConfig.Builder()
+                    .dynamicConfig(dynamicConfig)
+                    .setDumpHprof(matrixConfig.isDumpHprof())
+                    //only set true when in sample, not in your app
+                    .setDetectDebuger(matrixConfig.isDetectDebug())
+                    .build()));
+            ResourcePlugin.activityLeakFixer(context);
 
             //io
-            if (matrixAllConfig.ioEnable) {
-                IOCanaryPlugin ioCanaryPlugin = new IOCanaryPlugin(new IOConfig.Builder()
-                        .dynamicConfig(dynamicConfig)
-                        .build());
-                builder.plugin(ioCanaryPlugin);
-            }
+            IOCanaryPlugin ioCanaryPlugin = new IOCanaryPlugin(new IOConfig.Builder()
+                    .dynamicConfig(dynamicConfig)
+                    .build());
+            builder.plugin(ioCanaryPlugin);
 
             // sqlite
             // prevent api 19 UnsatisfiedLinkError
-            if (matrixAllConfig.sqlEnable) {
-                SQLiteLintConfig config = initSqliteLintConfig();
-                SQLiteLintPlugin sqLiteLintPlugin = new SQLiteLintPlugin(config);
-                builder.plugin(sqLiteLintPlugin);
-            }
+            SQLiteLintConfig config = initSqliteLintConfig();
+            SQLiteLintPlugin sqLiteLintPlugin = new SQLiteLintPlugin(config);
+            builder.plugin(sqLiteLintPlugin);
+
         }
 
         Matrix.init(builder.build());
-        Matrix.with().startAllPlugins();
+
+        saveDelegatePlugin(SQLiteLintPlugin.class);
+        saveDelegatePlugin(TracePlugin.class);
+        saveDelegatePlugin(IOCanaryPlugin.class);
+        saveDelegatePlugin(ResourcePlugin.class);
 
         MatrixLog.i(TAG, "init end:%s", System.currentTimeMillis());
 
+    }
+
+    private static void saveDelegatePlugin(Class<? extends com.tencent.matrix.plugin.Plugin> pluginClass) {
+        Plugin plugin = new Plugin(Matrix.with().getPluginByClass(pluginClass));
+        pluginMap.put(plugin.getTag(), plugin);
     }
 
     private static SQLiteLintConfig initSqliteLintConfig() {
@@ -101,4 +113,27 @@ public class MatrixHelper extends BaseMatrixHelper {
             return new SQLiteLintConfig(SQLiteLint.SqlExecutionCallbackMode.HOOK);
         }
     }
+
+
+    public static void clearCacheFile(Context context, String pluginTag) {
+        SharedPreferences spf = context.getSharedPreferences(pluginTag + MatrixUtil.getProcessName(context), Context.MODE_PRIVATE);
+        spf.edit().clear().commit();
+    }
+
+    public static Plugin getSqlLiteLintPlugin() {
+        return pluginMap.get(PluginInfo.SQL.TAG_PLUGIN);
+    }
+
+    public static Plugin getTracePlugin() {
+        return pluginMap.get(PluginInfo.Trace.TAG_PLUGIN);
+    }
+
+    public static Plugin getIOPlugin() {
+        return pluginMap.get(PluginInfo.IO.TAG_PLUGIN);
+    }
+
+    public static Plugin getResourcePlugin() {
+        return pluginMap.get(PluginInfo.Resource.TAG_PLUGIN);
+    }
+
 }

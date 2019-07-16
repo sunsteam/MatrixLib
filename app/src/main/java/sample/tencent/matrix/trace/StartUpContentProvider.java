@@ -8,8 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
-import com.tencent.matrix.util.MatrixLog;
+import android.util.Log;
 
 public class StartUpContentProvider extends ContentProvider {
     private static final String TAG = "Matrix.StartUpContentProvider";
@@ -59,7 +58,7 @@ public class StartUpContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-        MatrixLog.d(TAG, "CALL");
+        Log.d(TAG, "CALL");
         Bundle bundle = new Bundle();
         bundle.putString("returnCall", "successfully!");
         return bundle;

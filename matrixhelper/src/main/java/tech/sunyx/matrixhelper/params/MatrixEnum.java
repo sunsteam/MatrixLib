@@ -1,4 +1,4 @@
-package tech.sunyx.matrixhelper;
+package tech.sunyx.matrixhelper.params;
 
 public enum MatrixEnum {
 

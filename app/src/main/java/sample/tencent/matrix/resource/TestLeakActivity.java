@@ -33,6 +33,7 @@ import java.util.Set;
 
 import sample.tencent.matrix.R;
 import sample.tencent.matrix.issue.IssueFilter;
+import tech.sunyx.matrixhelper.MatrixHelper;
 
 /**
  * Created by zhangshaowen on 17/6/13.
@@ -48,17 +49,20 @@ public class TestLeakActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences sharedPreferences = getSharedPreferences("memory" + MatrixUtil.getProcessName(TestLeakActivity.this), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
-        editor.commit();
+
+        MatrixHelper.clearCacheFile(this, PluginInfo.Resource.TAG_PLUGIN);
+
+        if (!plugin.isPluginStarted()) {
+            MatrixLog.i(TAG, "plugin-resource start");
+            plugin.start();
+        }
 
         testLeaks.add(this);
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 2;
         bitmaps.add(BitmapFactory.decodeResource(getResources(), R.drawable.welcome_bg, options));
-        Log.i(TAG, "test leak activity size: %d, bitmaps size: %d", testLeaks.size(), bitmaps.size());
+        Log.i(TAG, "test leak activity size: " + testLeaks.size() + " bitmaps size: " + bitmaps.size());
 
         setContentView(R.layout.test_leak);
 
