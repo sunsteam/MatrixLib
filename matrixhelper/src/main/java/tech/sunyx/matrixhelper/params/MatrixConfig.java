@@ -1,7 +1,12 @@
 package tech.sunyx.matrixhelper.params;
 
+import android.database.sqlite.SQLiteDatabase;
+
+import java.util.List;
+
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Singular;
 import lombok.ToString;
 
 /**
@@ -70,6 +75,30 @@ public class MatrixConfig {
 
 
     /*sqlite*/
+
+    /**
+     * 观察的数据库
+     */
+    @Singular
+    List<SQLiteDatabase> concernDbs;
+
+    @Builder.Default
+    boolean enableExplainQueryPlanChecker = true;
+
+    @Builder.Default
+    boolean enableAvoidSelectAllChecker = true;
+
+    @Builder.Default
+    boolean enableWithoutRowIdBetterChecker = true;
+
+    @Builder.Default
+    boolean enableAvoidAutoIncrementChecker = true;
+
+    @Builder.Default
+    boolean enablePreparedStatementBetterChecker = true;
+
+    @Builder.Default
+    boolean enableRedundantIndexChecker = true;
 
 
 }

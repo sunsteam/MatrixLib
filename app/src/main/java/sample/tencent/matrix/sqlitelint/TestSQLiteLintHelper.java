@@ -20,17 +20,11 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.util.Map;
 import java.util.Random;
 
 public class TestSQLiteLintHelper {
@@ -68,34 +62,6 @@ public class TestSQLiteLintHelper {
         return list;
     }
 
-    /**
-     * kExplainQueryScanTable = 1,
-     * kExplainQueryUseTempTree = 2,
-     * kExplainQueryTipsForLargerIndex = 3,
-     * kAvoidAutoIncrement = 4,
-     * kAvoidSelectAllChecker = 5,
-     * kWithoutRowIdBetter = 6,
-     * kPreparedStatementBetter = 7,
-     * kRedundantIndex = 8,
-     *
-     * @param issuesMap
-     */
-    public static void initIssueList(Context context, Map<String, SQLiteLintIssue> issuesMap) {
-        String issuesString = getAssetAsString(context, "sqlite_lint_issues.json");
-        try {
-            JSONArray jsonArray = new JSONArray(issuesString);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                SQLiteLintIssue issue = new SQLiteLintIssue();
-                issue.id = jsonObject.getString("id");
-                issue.sql = jsonObject.getString("sql");
-                issue.type = jsonObject.getInt("type");
-                issuesMap.put(issue.id, issue);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static String[] getTestParserList() {
         String[] list = new String[]{

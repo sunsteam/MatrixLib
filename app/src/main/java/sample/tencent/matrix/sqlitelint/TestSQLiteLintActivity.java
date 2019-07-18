@@ -65,7 +65,6 @@ public class TestSQLiteLintActivity extends AppCompatActivity {
             plugin.stop();
         }
 
-        stopTest();
     }
 
     private void insert() {
@@ -111,11 +110,6 @@ public class TestSQLiteLintActivity extends AppCompatActivity {
     }
 
 
-    private Map<String, SQLiteLintIssue> issueMap = new HashMap<>();
-    private Map<String, SQLiteLintIssue> foundIssueMap = new HashMap<>();
-    private JSONArray issueJsonArray = new JSONArray();
-    private boolean isCalibrationMode = false;
-
     private void doTest() {
         String[] list = TestSQLiteLintHelper.getTestSqlList();
         /**
@@ -145,46 +139,10 @@ public class TestSQLiteLintActivity extends AppCompatActivity {
         batchInsert(40);
     }
 
-    private BaseBehaviour behaviour = new BaseBehaviour() {
-
-        @Override
-        public void onPublish(List<SQLiteLintIssue> list) {
-            if (isCalibrationMode) {
-                for (SQLiteLintIssue issue : list) {
-                    if (foundIssueMap.containsKey(issue.id)) {
-                        continue;
-                    }
-                    foundIssueMap.put(issue.id, issue);
-                    Log.i(TAG, String.format("onPublish issue %s, sql: %s, type: %d, desc: %s", issue.id, issue.sql,
-                            issue.type, issue.desc));
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        jsonObject.put("id", issue.id);
-                        jsonObject.put("sql", issue.sql);
-                        jsonObject.put("type", issue.type);
-                        issueJsonArray.put(jsonObject);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                for (SQLiteLintIssue issue : list) {
-                    foundIssueMap.put(issue.id, issue);
-                }
-            }
-        }
-    };
-
     private void startTest() {
 
         Log.d(TAG, "start test, please wait");
-        SQLiteLintAndroidCoreManager.INSTANCE.addBehavior(behaviour, TestDBHelper.get().getReadableDatabase().getPath());
-        TestSQLiteLintHelper.initIssueList(this, issueMap);
         doTest();
-    }
-
-    private void stopTest() {
-        SQLiteLintAndroidCoreManager.INSTANCE.removeBehavior(behaviour, TestDBHelper.get().getReadableDatabase().getPath());
     }
 
     private void startDBCreateTest() {
