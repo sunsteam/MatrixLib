@@ -8,6 +8,10 @@ public class Plugin {
         this.plugin = plugin;
     }
 
+    com.tencent.matrix.plugin.Plugin getRealPlugin() {
+        return plugin;
+    }
+
     public int getStatus() {
         return plugin.getStatus();
     }

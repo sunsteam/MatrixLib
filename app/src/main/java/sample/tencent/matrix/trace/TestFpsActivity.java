@@ -18,9 +18,7 @@ package sample.tencent.matrix.trace;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.HandlerThread;
-import android.print.PrinterId;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -28,11 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import com.tencent.matrix.Matrix;
-import com.tencent.matrix.plugin.Plugin;
-import com.tencent.matrix.trace.TracePlugin;
-import com.tencent.matrix.trace.listeners.IDoFrameListener;
 
 import java.util.Random;
 
@@ -54,15 +47,6 @@ public class TestFpsActivity extends Activity {
 
     private int count;
     private long time = System.currentTimeMillis();
-    private IDoFrameListener mDoFrameListener = new IDoFrameListener(new Handler(sHandlerThread.getLooper())) {
-
-        @Override
-        public void doFrameAsync(String focusedActivityName, long frameCost, int droppedFrames) {
-            super.doFrameAsync(focusedActivityName, frameCost, droppedFrames);
-            count += droppedFrames;
-            Log.i(TAG, "[doFrameSync] scene:" + focusedActivityName + " droppedFrames:" + droppedFrames);
-        }
-    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,9 +55,6 @@ public class TestFpsActivity extends Activity {
         setContentView(R.layout.test_fps_layout);
 
         IssueFilter.setCurrentFilter(IssueFilter.ISSUE_TRACE);
-
-        Matrix.with().getPluginByClass(TracePlugin.class).getFrameTracer().onStartTrace();
-        Matrix.with().getPluginByClass(TracePlugin.class).getFrameTracer().addListener(mDoFrameListener);
 
         time = System.currentTimeMillis();
         mListView = (ListView) findViewById(R.id.list_view);
@@ -105,7 +86,5 @@ public class TestFpsActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "[onDestroy] count:" + count + " time:" + (System.currentTimeMillis() - time) + "");
-        Matrix.with().getPluginByClass(TracePlugin.class).getFrameTracer().removeListener(mDoFrameListener);
-        Matrix.with().getPluginByClass(TracePlugin.class).getFrameTracer().onCloseTrace();
     }
 }

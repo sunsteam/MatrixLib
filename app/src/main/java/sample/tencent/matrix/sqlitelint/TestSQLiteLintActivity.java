@@ -25,15 +25,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import sample.tencent.matrix.R;
 import sample.tencent.matrix.issue.IssueFilter;
 import tech.sunyx.matrixhelper.MatrixHelper;
@@ -54,7 +45,7 @@ public class TestSQLiteLintActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        IssueStorage.clearData();
+        MatrixHelper.clearIssueStorage();
 
         Plugin plugin = MatrixHelper.getSqlLiteLintPlugin();
         if (plugin == null) {
@@ -161,8 +152,6 @@ public class TestSQLiteLintActivity extends AppCompatActivity {
             plugin.start();
         }
 
-        plugin.addConcernedDB(new SQLiteLintConfig.ConcernDb(TestDBHelper.get().getWritableDatabase())
-                //.setWhiteListXml(R.xml.sqlite_lint_whitelist)//disable white list by default
-                .enableAllCheckers());
+        MatrixHelper.addConcernedSqlLintDb(TestDBHelper.get().getWritableDatabase());
     }
 }

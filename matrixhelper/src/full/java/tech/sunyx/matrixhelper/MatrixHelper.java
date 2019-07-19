@@ -3,6 +3,7 @@ package tech.sunyx.matrixhelper;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.tencent.matrix.Matrix;
 import com.tencent.matrix.iocanary.IOCanaryPlugin;
@@ -15,6 +16,7 @@ import com.tencent.matrix.util.MatrixLog;
 import com.tencent.matrix.util.MatrixUtil;
 import com.tencent.sqlitelint.SQLiteLint;
 import com.tencent.sqlitelint.SQLiteLintPlugin;
+import com.tencent.sqlitelint.behaviour.persistence.IssueStorage;
 import com.tencent.sqlitelint.config.SQLiteLintConfig;
 
 import java.util.HashMap;
@@ -33,9 +35,13 @@ public class MatrixHelper {
 
     static HashMap<String, Plugin> pluginMap = new HashMap<>();
 
+    static InitConfig allConfig;
+
     public static void init(Application context, InitConfig allConfig) {
 
         MatrixLog.i(TAG, "init start:%s", System.currentTimeMillis());
+
+        MatrixHelper.allConfig = allConfig;
 
         MatrixConfig matrixConfig = allConfig.getMatrixConfig();
         DelegateConfigImpl dynamicConfig = new DelegateConfigImpl(allConfig.getDynamicConfig());
@@ -79,6 +85,9 @@ public class MatrixHelper {
             // sqlite
             // prevent api 19 UnsatisfiedLinkError
             SQLiteLintConfig config = initSqliteLintConfig();
+            for (SQLiteDatabase concernDb : matrixConfig.getConcernDbs()) {
+                config.addConcernDB(SqlPluginHelper.createConcernedDb(concernDb));
+            }
             SQLiteLintPlugin sqLiteLintPlugin = new SQLiteLintPlugin(config);
             builder.plugin(sqLiteLintPlugin);
 
@@ -120,6 +129,21 @@ public class MatrixHelper {
         spf.edit().clear().commit();
     }
 
+    public static void clearIssueStorage() {
+        IssueStorage.clearData();
+    }
+
+    public static void addConcernedSqlLintDb(SQLiteDatabase db) {
+
+        Plugin plugin = MatrixHelper.getSqlLiteLintPlugin();
+        if (plugin == null || plugin.getRealPlugin() == null) {
+            MatrixLog.w(TAG, "SqlLiteLintPlugin is not installed");
+            return;
+        }
+
+        ((SQLiteLintPlugin) plugin.getRealPlugin()).addConcernedDB(SqlPluginHelper.createConcernedDb(db));
+    }
+
     public static Plugin getSqlLiteLintPlugin() {
         return pluginMap.get(PluginInfo.SQL.TAG_PLUGIN);
     }
@@ -136,4 +160,8 @@ public class MatrixHelper {
         return pluginMap.get(PluginInfo.Resource.TAG_PLUGIN);
     }
 
+
+    public static FrameDetectorView createFrameDetector(Context context) {
+        return new FrameDetectorViewImpl(context);
+    }
 }

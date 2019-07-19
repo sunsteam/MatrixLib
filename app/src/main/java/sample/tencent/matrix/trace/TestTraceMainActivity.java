@@ -29,17 +29,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-
 import sample.tencent.matrix.R;
 import sample.tencent.matrix.issue.IssueFilter;
+import tech.sunyx.matrixhelper.FrameDetectorView;
 import tech.sunyx.matrixhelper.MatrixHelper;
 import tech.sunyx.matrixhelper.Plugin;
 
-public class TestTraceMainActivity extends Activity implements IAppForeground {
+public class TestTraceMainActivity extends Activity {
     private static final int PERMISSION_REQUEST_CODE = 0x02;
     private static String TAG = "Matrix.TestTraceMainActivity";
-    FrameDecorator decorator;
-    private boolean isStop = false;
+    FrameDetectorView decorator;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,25 +46,24 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
         setContentView(R.layout.test_trace);
         IssueFilter.setCurrentFilter(IssueFilter.ISSUE_TRACE);
 
-        Plugin plugin = MatrixHelper.getTracePlugin()
+        Plugin plugin = MatrixHelper.getTracePlugin();
         if (!plugin.isPluginStarted()) {
             Log.i(TAG, "plugin-trace start");
             plugin.start();
         }
-        decorator = FrameDecorator.create(this);
+        decorator = MatrixHelper.createFrameDetector(this);
         if (!canDrawOverlays()) {
             requestWindowPermission();
         } else {
             decorator.show();
         }
 
-        AppForegroundDelegate.INSTANCE.addListener(this);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.i(TAG, "requestCode:"+requestCode+" resultCode:"+resultCode);
+        Log.i(TAG, "requestCode:" + requestCode + " resultCode:" + resultCode);
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (canDrawOverlays()) {
                 decorator.show();
@@ -86,7 +84,6 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
         if (canDrawOverlays()) {
             decorator.dismiss();
         }
-        AppForegroundDelegate.INSTANCE.removeListener(this);
     }
 
     private boolean canDrawOverlays() {
@@ -174,30 +171,6 @@ public class TestTraceMainActivity extends Activity implements IAppForeground {
         SystemClock.sleep(2);
     }
 
-    public void stopAppMethodBeat(View view) {
-        AppMethodBeat appMethodBeat = MatrixHelper.getTracePlugin().getAppMethodBeat();
-        if (isStop) {
-            Toast.makeText(this, "start AppMethodBeat", Toast.LENGTH_LONG).show();
-            appMethodBeat.onStart();
-        } else {
-            Toast.makeText(this, "stop AppMethodBeat", Toast.LENGTH_LONG).show();
-            appMethodBeat.onStop();
-        }
-        isStop = !isStop;
-    }
-
-    @Override
-    public void onForeground(boolean isForeground) {
-        if (!canDrawOverlays()) {
-            return;
-        }
-        if (!isForeground) {
-            decorator.dismiss();
-        } else {
-            decorator.show();
-        }
-        isStop = !isStop;
-    }
 
     public void testInnerSleep() {
         SystemClock.sleep(6000);
